@@ -1,0 +1,7 @@
+[project]
+name = "sine-wave-denoising"
+version = "0.1.0"
+description = "Comparing FC, RNN, and LSTM models on a sine wave denoising task"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
