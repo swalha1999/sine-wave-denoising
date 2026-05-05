@@ -29,7 +29,7 @@ DoD = Definition of Done. Every task lists what "done" means concretely.
 | ☐ | 1.1 |   | `data/signals.py` — generate 4 sine waves from config | Unit test asserts shape `(4, 10000)` and known values for fixed seed |
 | ☑ | 1.2 |   | `data/noise.py` — add per-signal Gaussian noise, build mixed signal | Unit test: σ=0 → mixed equals sum of pure; mean(noise)≈0 over many seeds |
 | ☑ | 1.3 |   | `data/dataset.py` — `SineWindowDataset` produces `(x_ctx, c, y)` tuples | Unit test asserts shapes `(10,), int, (10,)`; respects split |
-| ☐ | 1.4 |   | `data/loader.py` — DataLoader factory | Unit test: train / val / test loaders have disjoint indices |
+| ☑ | 1.4 |   | `data/loader.py` — DataLoader factory | Unit test: train / val / test loaders have disjoint indices |
 | ☐ | 1.5 |   | Default `config/default.json` matches `PLAN.md` §5.1 | JSON loads, `version == "1.00"` |
 
 ## Phase 2 — Models (target: week 1–2)
