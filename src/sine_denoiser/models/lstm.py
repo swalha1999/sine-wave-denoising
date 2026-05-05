@@ -1,4 +1,4 @@
-"""Vanilla RNN denoiser per ``PRD_models.md`` §3."""
+"""LSTM denoiser per ``PRD_models.md`` §4."""
 
 from __future__ import annotations
 
@@ -9,11 +9,10 @@ from sine_denoiser.models.base import DenoiserModel
 
 _NUM_COMPONENTS = 4
 _WINDOW = 10
-_NONLINEARITIES = ("tanh", "relu")
 
 
-class RNN(DenoiserModel):
-    """Vanilla RNN denoiser.
+class LSTM(DenoiserModel):
+    """LSTM denoiser.
 
     The window is treated as a length-``W`` sequence; at each timestep the
     model consumes ``[x_ctx[t]] ++ one_hot(c, num_components)``. A linear
@@ -21,14 +20,14 @@ class RNN(DenoiserModel):
     output of shape ``(B, W)``.
     """
 
-    name = "rnn"
+    name = "lstm"
 
     def __init__(
         self,
         hidden_size: int = 64,
         num_layers: int = 1,
-        nonlinearity: str = "tanh",
         dropout: float = 0.0,
+        bidirectional: bool = False,
         num_components: int = _NUM_COMPONENTS,
         context_window: int = _WINDOW,
     ) -> None:
@@ -39,22 +38,19 @@ class RNN(DenoiserModel):
             raise ValueError("num_layers must be > 0")
         if not 0.0 <= dropout < 1.0:
             raise ValueError("dropout must be in [0, 1)")
-        if nonlinearity not in _NONLINEARITIES:
-            raise ValueError(
-                f"nonlinearity must be one of {list(_NONLINEARITIES)}; got {nonlinearity!r}"
-            )
         self._num_components = num_components
         self._window = context_window
 
-        self.rnn = nn.RNN(
+        self.lstm = nn.LSTM(
             input_size=1 + num_components,
             hidden_size=hidden_size,
             num_layers=num_layers,
-            nonlinearity=nonlinearity,
             batch_first=True,
             dropout=dropout if num_layers > 1 else 0.0,
+            bidirectional=bidirectional,
         )
-        self.head = nn.Linear(hidden_size, 1)
+        head_in = hidden_size * (2 if bidirectional else 1)
+        self.head = nn.Linear(head_in, 1)
 
     def forward(self, x_ctx: Tensor, c: Tensor) -> Tensor:
         if x_ctx.ndim != 2 or x_ctx.shape[1] != self._window:
@@ -68,5 +64,5 @@ class RNN(DenoiserModel):
         one_hot = torch.nn.functional.one_hot(c, self._num_components).to(x_ctx.dtype)
         one_hot_seq = one_hot.unsqueeze(1).expand(-1, self._window, -1)
         seq = torch.cat([x_ctx.unsqueeze(-1), one_hot_seq], dim=-1)
-        out, _ = self.rnn(seq)
+        out, _ = self.lstm(seq)
         return self.head(out).squeeze(-1)

@@ -3,7 +3,7 @@ import torch
 from torch import nn
 
 from sine_denoiser.models import DenoiserModel
-from sine_denoiser.models.rnn import RNN
+from sine_denoiser.models.lstm import LSTM
 
 
 def _inputs(batch_size: int = 8):
@@ -13,83 +13,78 @@ def _inputs(batch_size: int = 8):
 
 
 def test_forward_shape_default_config():
-    model = RNN()
+    model = LSTM()
     x_ctx, c = _inputs(8)
     y = model(x_ctx, c)
     assert y.shape == (8, 10)
 
 
 def test_is_denoiser_model_subclass():
-    assert issubclass(RNN, DenoiserModel)
-    assert RNN.name == "rnn"
+    assert issubclass(LSTM, DenoiserModel)
+    assert LSTM.name == "lstm"
 
 
 def test_forward_shape_with_all_config_keys():
-    model = RNN(hidden_size=32, num_layers=2, nonlinearity="relu", dropout=0.1)
+    model = LSTM(hidden_size=32, num_layers=2, dropout=0.1, bidirectional=True)
     x_ctx, c = _inputs(4)
     y = model(x_ctx, c)
     assert y.shape == (4, 10)
 
 
-@pytest.mark.parametrize("nonlinearity", ["tanh", "relu"])
-def test_supported_nonlinearities_build(nonlinearity):
-    model = RNN(nonlinearity=nonlinearity)
-    x_ctx, c = _inputs(2)
-    assert model(x_ctx, c).shape == (2, 10)
-
-
-def test_unknown_nonlinearity_raises():
-    with pytest.raises(ValueError, match="nonlinearity"):
-        RNN(nonlinearity="gelu")
-
-
 @pytest.mark.parametrize("bad", [{"hidden_size": 0}, {"num_layers": 0}])
 def test_invalid_size_raises(bad):
     with pytest.raises(ValueError):
-        RNN(**bad)
+        LSTM(**bad)
 
 
 @pytest.mark.parametrize("dropout", [-0.1, 1.0, 1.5])
 def test_invalid_dropout_raises(dropout):
     with pytest.raises(ValueError, match="dropout"):
-        RNN(dropout=dropout)
+        LSTM(dropout=dropout)
 
 
-def test_rnn_input_size_matches_spec():
-    model = RNN(hidden_size=8, num_layers=1)
-    assert model.rnn.input_size == 1 + 4
-    assert model.rnn.hidden_size == 8
-    assert model.rnn.num_layers == 1
-    assert model.rnn.batch_first is True
+def test_lstm_input_size_matches_spec():
+    model = LSTM(hidden_size=8, num_layers=1)
+    assert model.lstm.input_size == 1 + 4
+    assert model.lstm.hidden_size == 8
+    assert model.lstm.num_layers == 1
+    assert model.lstm.batch_first is True
+    assert model.lstm.bidirectional is False
 
 
 def test_head_projects_hidden_to_scalar():
-    model = RNN(hidden_size=16, num_layers=1)
+    model = LSTM(hidden_size=16, num_layers=1)
     assert isinstance(model.head, nn.Linear)
     assert model.head.in_features == 16
     assert model.head.out_features == 1
 
 
+def test_head_doubles_input_when_bidirectional():
+    model = LSTM(hidden_size=16, num_layers=1, bidirectional=True)
+    assert model.head.in_features == 32
+    assert model.head.out_features == 1
+
+
 def test_dropout_propagated_when_multilayer():
-    model = RNN(hidden_size=8, num_layers=2, dropout=0.3)
-    assert model.rnn.dropout == pytest.approx(0.3)
+    model = LSTM(hidden_size=8, num_layers=2, dropout=0.3)
+    assert model.lstm.dropout == pytest.approx(0.3)
 
 
 def test_dropout_ignored_when_single_layer():
-    model = RNN(hidden_size=8, num_layers=1, dropout=0.3)
-    assert model.rnn.dropout == 0.0
+    model = LSTM(hidden_size=8, num_layers=1, dropout=0.3)
+    assert model.lstm.dropout == 0.0
 
 
 def test_from_config_builds_with_all_keys():
-    cfg = {"hidden_size": 16, "num_layers": 1, "nonlinearity": "tanh", "dropout": 0.0}
-    model = RNN.from_config(cfg)
-    assert isinstance(model, RNN)
+    cfg = {"hidden_size": 16, "num_layers": 1, "dropout": 0.0, "bidirectional": False}
+    model = LSTM.from_config(cfg)
+    assert isinstance(model, LSTM)
     x_ctx, c = _inputs(2)
     assert model(x_ctx, c).shape == (2, 10)
 
 
 def test_forward_rejects_wrong_x_shape():
-    model = RNN()
+    model = LSTM()
     bad_x = torch.randn(2, 7)
     c = torch.zeros(2, dtype=torch.long)
     with pytest.raises(ValueError, match="x_ctx"):
@@ -97,7 +92,7 @@ def test_forward_rejects_wrong_x_shape():
 
 
 def test_forward_rejects_mismatched_batch():
-    model = RNN()
+    model = LSTM()
     x_ctx = torch.randn(4, 10)
     c = torch.zeros(3, dtype=torch.long)
     with pytest.raises(ValueError, match="c"):
@@ -105,7 +100,7 @@ def test_forward_rejects_mismatched_batch():
 
 
 def test_backward_pass_produces_grads():
-    model = RNN(hidden_size=8, num_layers=1, dropout=0.0)
+    model = LSTM(hidden_size=8, num_layers=1, dropout=0.0)
     x_ctx, c = _inputs(4)
     y = model(x_ctx, c)
     y.sum().backward()
@@ -115,7 +110,7 @@ def test_backward_pass_produces_grads():
 def test_selector_broadcast_to_every_timestep():
     """Same x_ctx with different selectors must produce different outputs."""
     torch.manual_seed(0)
-    model = RNN(hidden_size=16, num_layers=1)
+    model = LSTM(hidden_size=16, num_layers=1)
     model.eval()
     x_ctx = torch.randn(1, 10)
     with torch.no_grad():
