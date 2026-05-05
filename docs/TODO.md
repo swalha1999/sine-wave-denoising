@@ -36,7 +36,7 @@ DoD = Definition of Done. Every task lists what "done" means concretely.
 
 | Status | # | Owner | Task | DoD |
 |---|---|---|---|---|
-| ☐ | 2.1 |   | `models/base.py` — `DenoiserModel` ABC | Unit test: subclass without `forward` fails to instantiate |
+| ☑ | 2.1 |   | `models/base.py` — `DenoiserModel` ABC | Unit test: subclass without `forward` fails to instantiate |
 | ☐ | 2.2 |   | `models/mlp.py` — MLP per `PRD_models.md` §2 | Forward returns `(B, 10)`; supports all config keys |
 | ☐ | 2.3 |   | `models/rnn.py` — vanilla RNN per §3 | Forward returns `(B, 10)`; sequence layout correct |
 | ☐ | 2.4 |   | `models/lstm.py` — LSTM per §4 | Forward returns `(B, 10)`; sequence layout correct |
