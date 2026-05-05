@@ -56,6 +56,7 @@ def plot_training_curves(
     epochs = [int(row["epoch"]) for row in history]
     train = [float(row["train_mse"]) for row in history]
     val = [float(row["val_mse"]) for row in history]
+    best_epoch = min(history, key=lambda row: float(row["val_mse"]))["epoch"]
 
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -64,10 +65,18 @@ def plot_training_curves(
     try:
         ax.plot(epochs, train, marker="o", label="train")
         ax.plot(epochs, val, marker="o", label="val")
+        ax.axvline(
+            best_epoch,
+            color="grey",
+            linestyle="--",
+            alpha=0.6,
+            label=f"best epoch ({best_epoch})",
+        )
         ax.set_xlabel("epoch")
         ax.set_ylabel("MSE")
+        ax.set_yscale("log")
         ax.set_title(title or "Training curves")
-        ax.grid(True, alpha=0.3)
+        ax.grid(True, which="both", alpha=0.3)
         ax.legend()
         fig.tight_layout()
         fig.savefig(out, dpi=120)
