@@ -60,6 +60,7 @@ def test_main_trains_all_three_models_and_returns_zero(tmp_path, capsys):
         assert (run_dir / name / "best.pt").exists()
         assert (run_dir / name / "metrics.json").exists()
         assert (run_dir / name / "config_snapshot.json").exists()
+        assert (run_dir / name / "training_curve.png").is_file()
 
 
 def test_main_supports_single_model_selection(tmp_path, capsys):
