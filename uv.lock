@@ -950,7 +950,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "matplotlib", specifier = ">=3.10.9" },
+    { name = "matplotlib", specifier = ">=3.8" },
     { name = "numpy", specifier = ">=2.4.4" },
     { name = "torch", specifier = ">=2.0" },
 ]

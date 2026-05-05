@@ -51,6 +51,7 @@ def test_one_epoch_run_persists_checkpoint_and_metrics(tmp_path):
 
     assert (run_dir / "best.pt").exists()
     assert (run_dir / "metrics.json").exists()
+    assert (run_dir / "training_curve.png").is_file()
     payload = json.loads((run_dir / "metrics.json").read_text())
     assert payload["best_epoch"] == 1
     assert len(payload["history"]) == 1

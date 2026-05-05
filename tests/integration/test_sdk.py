@@ -76,6 +76,7 @@ def test_full_pipeline_train_evaluate_predict(tmp_path):
     assert run.run_dir == run_dir
     assert (run_dir / "best.pt").exists()
     assert (run_dir / "metrics.json").exists()
+    assert (run_dir / "training_curve.png").is_file()
     assert (run_dir / "config_snapshot.json").exists()
     snapshot = json.loads((run_dir / "config_snapshot.json").read_text())
     assert snapshot["version"] == "1.00"

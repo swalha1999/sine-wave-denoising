@@ -130,3 +130,7 @@ def _persist(run_dir: Path, result: FitResult) -> None:
         "history": [asdict(m) for m in result.history],
     }
     (run_dir / "metrics.json").write_text(json.dumps(payload, indent=2))
+    if result.history:
+        from sine_denoiser.plotting.curves import plot_training_curves
+
+        plot_training_curves(result, run_dir / "training_curve.png")

@@ -15,7 +15,6 @@ from sine_denoiser.data.noise import add_gaussian_noise, build_mixed
 from sine_denoiser.data.signals import generate_signals
 from sine_denoiser.models import build as build_model
 from sine_denoiser.models.base import DenoiserModel
-from sine_denoiser.plotting.curves import plot_training_curve
 from sine_denoiser.training.loop import FitResult, fit
 
 
@@ -146,12 +145,6 @@ class SDK:
         if rd is not None:
             rd.mkdir(parents=True, exist_ok=True)
             (rd / "config_snapshot.json").write_text(json.dumps(snapshot, indent=2))
-            if result.history:
-                plot_training_curve(
-                    result,
-                    rd / "training_curve.png",
-                    title=f"{model_name} (seed={seed})",
-                )
         return RunArtifacts(model_name, seed, model, result, snapshot, rd)
 
     def evaluate(self, run: RunArtifacts) -> EvaluationReport:
