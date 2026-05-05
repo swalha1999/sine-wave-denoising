@@ -17,8 +17,8 @@ DoD = Definition of Done. Every task lists what "done" means concretely.
 | ☑ | 0.1 | S | Create GitHub repo, add collaborator | Repo public at `swalha1999/sine-wave-denoising`, M added |
 | ☑ | 0.2 | S | `uv init` + hello-world | `uv run main.py` prints hello |
 | ☑ | 0.3 | S | Write `PRD.md`, `PRD_models.md`, `PLAN.md`, `TODO.md` | All four files committed under `docs/` |
-| ☐ | 0.4 |   | Add `ruff` + `pytest` + `pytest-cov` as dev deps | `uv add --dev ruff pytest pytest-cov` runs cleanly |
-| ☐ | 0.5 |   | Skeleton `src/sine_denoiser/` package + `shared/version.py` (`"1.00"`) | `uv run python -c "import sine_denoiser; print(sine_denoiser.__version__)"` works |
+| ☑ | 0.4 | S | Add `ruff` + `pytest` + `pytest-cov` as dev deps | `uv add --dev ruff pytest pytest-cov` runs cleanly |
+| ☑ | 0.5 | S | Skeleton `src/sine_denoiser/` package + `shared/version.py` (`"1.00"`) | `uv run python -c "import sine_denoiser; print(sine_denoiser.__version__)"` works |
 | ☐ | 0.6 |   | `.env-example`, update `.gitignore` for `.env`, `runs/`, `checkpoints/` | Files exist, `git status` clean after `cp .env-example .env` |
 | ☐ | 0.7 |   | GitHub Actions CI: `uv sync` → `ruff` → `pytest --cov` | Green check on first push |
 
