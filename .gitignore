@@ -45,8 +45,8 @@ ENV/
 .coverage
 htmlcov/
 
-# Data / model artifacts
-data/
+# Data / model artifacts (top-level only — leave src/**/data/ alone)
+/data/
 checkpoints/
 runs/
 *.pt
