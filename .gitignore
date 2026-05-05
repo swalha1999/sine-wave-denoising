@@ -26,6 +26,12 @@ venv/
 env/
 ENV/
 
+.lazycron
+.sandcastle
+
+# Local env file (copy from .env-example)
+.env
+
 # Jupyter
 .ipynb_checkpoints/
 
@@ -43,3 +49,5 @@ runs/
 *.pth
 *.ckpt
 wandb/
+.lazycron/.env
+.sandcastle/.env
