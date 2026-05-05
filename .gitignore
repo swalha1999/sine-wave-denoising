@@ -41,6 +41,10 @@ ENV/
 *.swp
 .DS_Store
 
+# Coverage
+.coverage
+htmlcov/
+
 # Data / model artifacts
 data/
 checkpoints/
