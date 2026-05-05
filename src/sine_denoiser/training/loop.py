@@ -11,10 +11,7 @@ from pathlib import Path
 import torch
 from torch import Tensor, nn
 
-_OPTIMIZERS: dict[str, type[torch.optim.Optimizer]] = {
-    "adam": torch.optim.Adam,
-    "sgd": torch.optim.SGD,
-}
+from sine_denoiser.training.optim import build as build_optimizer
 
 
 @dataclass(frozen=True)
@@ -34,17 +31,6 @@ class FitResult:
     best_val_mse: float
     history: list[EpochMetrics] = field(default_factory=list)
     best_state_dict: dict[str, Tensor] = field(default_factory=dict)
-
-
-def _build_optimizer(model: nn.Module, cfg: dict) -> torch.optim.Optimizer:
-    name = str(cfg.get("optimizer", "adam")).lower()
-    try:
-        cls = _OPTIMIZERS[name]
-    except KeyError:
-        raise ValueError(
-            f"unknown optimizer {name!r}; available: {sorted(_OPTIMIZERS)}"
-        ) from None
-    return cls(model.parameters(), lr=float(cfg.get("lr", 1e-3)))
 
 
 def _to_tensors(batch) -> tuple[Tensor, Tensor, Tensor]:
@@ -102,7 +88,7 @@ def fit(
     if epochs <= 0:
         raise ValueError("epochs must be > 0")
     patience = int(cfg.get("early_stopping_patience", 0))
-    optimizer = _build_optimizer(model, cfg)
+    optimizer = build_optimizer(model, cfg)
 
     best_val_mse = float("inf")
     best_epoch = 0
