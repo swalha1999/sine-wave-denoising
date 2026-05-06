@@ -24,3 +24,18 @@ docs/   assignment spec
 ```
 
 Implementation directories (`src/`, `notebooks/`, etc.) will be added as work progresses.
+
+## Hyperparameter sweeps
+
+Run all four sweep axes (`lr`, `hidden_size`, `num_layers`, `noise_sigma`) across
+all three models with one command:
+
+```bash
+uv run python -m sine_denoiser.sweeps \
+  --config config/sweep.json \
+  --out-dir runs/sweeps
+```
+
+For each axis the CLI writes `<axis>.json` (raw test/val MSEs per model) and
+`<axis>.png` (multi-series line plot) under `--out-dir`. Pass `--axis` and/or
+`--model` (repeatable) to run a subset.
