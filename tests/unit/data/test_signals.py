@@ -3,7 +3,6 @@ import pytest
 
 from sine_denoiser.data.signals import SignalConfig, generate_signals
 
-
 DEFAULT_CFG = {
     "num_components": 4,
     "duration_s": 10.0,
