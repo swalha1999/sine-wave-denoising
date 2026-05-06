@@ -70,7 +70,7 @@ DoD = Definition of Done. Every task lists what "done" means concretely.
 | ☐ | 5.1 |   | `README.md` polished: install / usage / config / examples | Cold reader can run the project after reading only the README |
 | ☑ | 5.2 |   | `ruff check` clean across the repo | CI passes |
 | ☑ | 5.3 |   | Coverage ≥85 % | CI passes with `--cov-fail-under=85` |
-| ☐ | 5.4 |   | 150-line/file rule satisfied | `scripts/check_line_count.sh` exits 0 in CI |
+| ☑ | 5.4 |   | 150-line/file rule satisfied | `scripts/check_line_count.sh` exits 0 in CI |
 | ☑ | 5.5 |   | Prompt book — log significant prompts used to build the project | `docs/PROMPTS.md` exists and is non-trivial |
 | ☐ | 5.6 |   | Tag submission release | `git tag v1.0-submission && git push --tags` |
 
