@@ -257,13 +257,12 @@ This aligns with the reported metrics: an MSE of about 0.37 for a unit-amplitude
 
 ### Take-aways
 
-- **Architecture matters less than information bandwidth.** The choice
-  between MLP / RNN / LSTM moves the floor by < 5 % on this task.
-  The dominant constraint is the 10-sample window length relative to
-  the higher-frequency components.
-- **Simpler is more robust.** When the test-time noise level exceeds
-  what was seen in training, the MLP generalizes best; the recurrent
-  models compound their errors.
+- **Architecture matters less than information bandwidth.** Switching between MLP, RNN, and LSTM changes
+  the performance floor by less than 5% on this task.
+  The primary limitation comes from the 10-sample window size, especially in relation to the higher-frequency components.
+- **Simplicity improves robustness.** When the noise level at test time exceeds what the model
+  encountered during training, the MLP shows the strongest generalization,
+  while recurrent architectures tend to accumulate and amplify their errors.
 - **Want a real win? Widen the window.** The clearest path to improving
   performance on this task is to feed the models a longer context (or
   Fourier features), not to swap one architecture for another.
