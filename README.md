@@ -203,3 +203,90 @@ small-scale config.
 Coursework for *Orchestration of AI Agents*. No license granted for external
 reuse without permission.
 
+---
+
+## Findings
+
+The figures below were produced by `scripts/generate_readme_assets.py`,
+which trains all three models on `config/default.json` (seed 0,
+σ\_train = 0.5), evaluates them on the held-out test split, and runs a
+robustness sweep over noise σ ∈ {0.0, 0.25, 0.5, 1.0, 2.0}. Numbers cited
+here come from the resulting `docs/assets/summary.json`.
+
+### 1. Validation curves — all three models hit the same floor
+
+![Validation MSE per epoch](docs/assets/training_curves.png)
+
+Every model converges to a validation MSE in a narrow band around
+**0.36 – 0.37**. The MLP gets there fastest (best epoch **13**), the RNN
+takes longer (best epoch **19**), and the LSTM keeps inching down for the
+longest before early stopping fires (best epoch **33**). None of the
+recurrent gains buy us a meaningfully lower floor — the bottleneck isn't
+optimization, it's information.
+
+### 2. Robustness — MLP degrades the slowest under heavy noise
+
+![Test MSE vs. noise sigma](docs/assets/sweep_sigma.png)
+
+When σ is small (0.0 – 0.5) the three curves are stacked within ~0.02 MSE
+of each other. The interesting regime is σ ≥ 1.0:
+
+| σ_test | MLP    | RNN    | LSTM   |
+|-------:|-------:|-------:|-------:|
+| 0.0    | 0.351  | 0.362  | 0.358  |
+| 0.5    | 0.370  | 0.384  | 0.381  |
+| 1.0    | 0.402  | 0.431  | 0.434  |
+| 2.0    | **0.499** | 0.578  | 0.620  |
+
+At σ = 2.0 the LSTM is **24 % worse** than the MLP. The RNN and LSTM, both
+of which see the input as a 10-step sequence, overfit to noise structure
+that doesn't generalize once the noise distribution shifts. The plain
+MLP, treating the window as a flat 10-vector, is the most robust.
+
+### 3. Per-component MSE — low frequencies are easier
+
+![Per-component test MSE by model](docs/assets/test_mse_per_component.png)
+
+Component 0 (2 Hz) is consistently the easiest target across all models;
+components 1 – 3 (5 Hz, 11 Hz, 17 Hz) are 8 – 14 % harder. With a 10-sample
+context at 1000 Hz sampling, a 2 Hz wave moves only ≈ 7° per sample, so
+the window looks nearly linear and is well-fit. By 17 Hz the same window
+spans ≈ 60° of phase — the sinusoid is no longer locally trivial and the
+noise dominates what little curvature is visible.
+
+### 4. Predicted vs. clean — models learn a bias, not the shape
+
+![MLP predictions on component 0](docs/assets/predictions_mlp/mlp_component_0.png)
+
+This is the most informative figure in the set. The orange dashed line
+(predicted) is roughly constant inside each window while the blue line
+(clean target) is clearly trending. The model is essentially predicting
+a per-component, per-context-window offset rather than tracking the
+sinusoid's shape. Equivalent plots for the RNN
+(`docs/assets/predictions_rnn/`) and LSTM
+(`docs/assets/predictions_lstm/`) tell the same story.
+
+This is consistent with the headline numbers: an MSE of ≈ 0.37 against a
+unit-amplitude sine is approximately what you get from predicting the
+window mean. The 10-sample context window simply does not carry enough
+information about a 17 Hz wave under σ = 0.5 noise to recover the
+*shape* — only an amplitude estimate.
+
+### Take-aways
+
+- **Architecture matters less than information bandwidth.** The choice
+  between MLP / RNN / LSTM moves the floor by < 5 % on this task.
+  The dominant constraint is the 10-sample window length relative to
+  the higher-frequency components.
+- **Simpler is more robust.** When the test-time noise level exceeds
+  what was seen in training, the MLP generalizes best; the recurrent
+  models compound their errors.
+- **Want a real win? Widen the window.** The clearest path to improving
+  performance on this task is to feed the models a longer context (or
+  Fourier features), not to swap one architecture for another.
+
+To reproduce these figures locally:
+
+```bash
+uv run python scripts/generate_readme_assets.py
+```
