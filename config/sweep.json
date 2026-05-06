@@ -1,0 +1,36 @@
+{
+  "version": "1.00",
+  "data": {
+    "num_components": 4,
+    "duration_s": 2.0,
+    "sample_rate_hz": 1000,
+    "noise_sigma": 0.5,
+    "frequencies_hz": [2.0, 5.0, 11.0, 17.0],
+    "phases_rad":     [0.0, 0.7, 1.5, 2.3],
+    "amplitudes":     [1.0, 1.0, 1.0, 1.0],
+    "context_window": 10,
+    "split":          {"train": 0.8, "val": 0.1, "test": 0.1},
+    "data_seed":      0
+  },
+  "model": {
+    "mlp":  {"hidden_size": 64, "num_layers": 2, "activation": "relu", "dropout": 0.0},
+    "rnn":  {"hidden_size": 64, "num_layers": 1, "nonlinearity": "tanh", "dropout": 0.0},
+    "lstm": {"hidden_size": 64, "num_layers": 1, "dropout": 0.0, "bidirectional": false}
+  },
+  "training": {
+    "optimizer": "adam",
+    "lr": 1e-3,
+    "batch_size": 256,
+    "epochs": 8,
+    "early_stopping_patience": 3
+  },
+  "sweep": {
+    "models": ["mlp", "rnn", "lstm"],
+    "axes": [
+      {"name": "lr",          "target": "training.lr",                "values": [1e-4, 5e-4, 1e-3, 5e-3]},
+      {"name": "hidden_size", "target": "model.{model}.hidden_size",  "values": [16, 32, 64, 128]},
+      {"name": "num_layers",  "target": "model.{model}.num_layers",   "values": [1, 2, 3]},
+      {"name": "noise_sigma", "target": "data.noise_sigma",           "values": [0.0, 0.25, 0.5, 1.0]}
+    ]
+  }
+}

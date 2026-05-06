@@ -61,7 +61,7 @@ DoD = Definition of Done. Every task lists what "done" means concretely.
 | ☐ | 4.2 |   | `plotting/predictions.py` — predicted vs. clean window plots | PNG per (model, component) |
 | ☐ | 4.3 |   | `plotting/sweep.py` — line / heatmap for sweep results | PNG per axis under `runs/sweeps/` |
 | ☐ | 4.4 |   | `notebooks/results_analysis.ipynb` — final comparison notebook | Runs top-to-bottom without errors; contains all PRD §A5 items |
-| ☐ | 4.5 |   | Run hyperparameter sweeps for all 3 models, ≥3 axes each | All sweep PNGs and JSONs committed (or reproducible from a single CLI command) |
+| ☑ | 4.5 |   | Run hyperparameter sweeps for all 3 models, ≥3 axes each | All sweep PNGs and JSONs committed (or reproducible from a single CLI command) |
 
 ## Phase 5 — Polish & submission (target: week 3)
 

@@ -41,6 +41,7 @@ Train all three models end-to-end with the default config:
 uv run python -m sine_denoiser.train --config config/default.json
 ```
 
+
 Each model prints a one-line JSON report with the best epoch, validation MSE,
 and test MSE (total + per component):
 
@@ -201,3 +202,4 @@ small-scale config.
 
 Coursework for *Orchestration of AI Agents*. No license granted for external
 reuse without permission.
+
