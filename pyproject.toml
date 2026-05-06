@@ -26,3 +26,10 @@ dev = [
     "pytest-cov>=7.1.0",
     "ruff>=0.15.12",
 ]
+
+[tool.ruff]
+line-length = 100
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
