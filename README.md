@@ -217,19 +217,13 @@ here come from the resulting `docs/assets/summary.json`.
 
 ![Validation MSE per epoch](docs/assets/training_curves.png)
 
-Every model converges to a validation MSE in a narrow band around
-**0.36 – 0.37**. The MLP gets there fastest (best epoch **13**), the RNN
-takes longer (best epoch **19**), and the LSTM keeps inching down for the
-longest before early stopping fires (best epoch **33**). None of the
-recurrent gains buy us a meaningfully lower floor — the bottleneck isn't
-optimization, it's information.
+Across all tested models, validation MSE converged to a consistent range of **0.36 – 0.37**. Analysis of training logs shows the MLP achieved peak performance most rapidly (best epoch **13**), followed by the RNN (best epoch **19**). The LSTM exhibited the most gradual improvement, reaching its optimal state at epoch **33** before early stopping. The parity in final loss values indicates that the gain from recurrent layers is negligible for this task, pointing to informational constraints rather than architectural limitations.
 
 ### 2. Robustness — MLP degrades the slowest under heavy noise
 
 ![Test MSE vs. noise sigma](docs/assets/sweep_sigma.png)
 
-When σ is small (0.0 – 0.5) the three curves are stacked within ~0.02 MSE
-of each other. The interesting regime is σ ≥ 1.0:
+For low noise levels (σ = 0.0–0.5), the three curves remain tightly grouped, differing by no more than about 0.02 in MSE. The interesting regime is σ ≥ 1.0:
 
 | σ_test | MLP    | RNN    | LSTM   |
 |-------:|-------:|-------:|-------:|
@@ -238,39 +232,28 @@ of each other. The interesting regime is σ ≥ 1.0:
 | 1.0    | 0.402  | 0.431  | 0.434  |
 | 2.0    | **0.499** | 0.578  | 0.620  |
 
-At σ = 2.0 the LSTM is **24 % worse** than the MLP. The RNN and LSTM, both
-of which see the input as a 10-step sequence, overfit to noise structure
-that doesn't generalize once the noise distribution shifts. The plain
-MLP, treating the window as a flat 10-vector, is the most robust.
+At σ = 2.0 the LSTM is **24 %** worse than the MLP. Both the RNN and LSTM, which process the input as a 10-step sequence, tend to overfit to noise structures that fail to generalize during shifts in the noise distribution. Conversely, the plain MLP—treating the input window as a flat 10-vector—demonstrates the most robust performance.
 
 ### 3. Per-component MSE — low frequencies are easier
 
 ![Per-component test MSE by model](docs/assets/test_mse_per_component.png)
 
-Component 0 (2 Hz) is consistently the easiest target across all models;
-components 1 – 3 (5 Hz, 11 Hz, 17 Hz) are 8 – 14 % harder. With a 10-sample
-context at 1000 Hz sampling, a 2 Hz wave moves only ≈ 7° per sample, so
-the window looks nearly linear and is well-fit. By 17 Hz the same window
-spans ≈ 60° of phase — the sinusoid is no longer locally trivial and the
-noise dominates what little curvature is visible.
+Component 0 (2 Hz) remains the most easily predicted across all models,
+while components 1–3 (5 Hz, 11 Hz, 17 Hz) are about 8–14% more difficult. 
+using a 10-sample window at a 1000 Hz sampling rate, a 2 Hz signal shifts only about 7° per sample, 
+making the segment appear almost linear and easy to model. 
+In contrast, at 17 Hz, the same window covers roughly 60° of phase, 
+meaning the sinusoidal pattern is no longer locally simple, and noise tends to obscure the limited visible curvature.
 
 ### 4. Predicted vs. clean — models learn a bias, not the shape
 
 ![MLP predictions on component 0](docs/assets/predictions_mlp/mlp_component_0.png)
 
-This is the most informative figure in the set. The orange dashed line
-(predicted) is roughly constant inside each window while the blue line
-(clean target) is clearly trending. The model is essentially predicting
-a per-component, per-context-window offset rather than tracking the
-sinusoid's shape. Equivalent plots for the RNN
-(`docs/assets/predictions_rnn/`) and LSTM
-(`docs/assets/predictions_lstm/`) tell the same story.
+This figure is the most revealing in the set. The orange dashed curve (predictions) stays nearly flat within each window,
+whereas the blue curve (clean target) shows a clear trend. In practice, the model is learning a per-component, 
+per-window offset instead of following the actual sinusoidal pattern. Similar visualizations for the RNN (`docs/assets/predictions_rnn/`) and LSTM (`docs/assets/predictions_lstm/`) demonstrate the same behavior.
 
-This is consistent with the headline numbers: an MSE of ≈ 0.37 against a
-unit-amplitude sine is approximately what you get from predicting the
-window mean. The 10-sample context window simply does not carry enough
-information about a 17 Hz wave under σ = 0.5 noise to recover the
-*shape* — only an amplitude estimate.
+This aligns with the reported metrics: an MSE of about 0.37 for a unit-amplitude sine wave is roughly what you would expect when predicting the mean of each window. With a 10-sample context, there isn’t enough information to reconstruct the shape of a 17 Hz signal under σ = 0.5 noise—only a coarse estimate of its amplitude.
 
 ### Take-aways
 
