@@ -10,10 +10,8 @@ LIMIT="${LINE_COUNT_LIMIT:-150}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-mapfile -d '' files < <(find src tests -type f -name '*.py' -print0)
-
 violations=0
-for f in "${files[@]}"; do
+while IFS= read -r -d '' f; do
     loc=$(awk '
         {
             line = $0
@@ -28,7 +26,7 @@ for f in "${files[@]}"; do
         printf '%s: %d lines of code (limit %d)\n' "$f" "$loc" "$LIMIT" >&2
         violations=$((violations + 1))
     fi
-done
+done < <(find src tests -type f -name '*.py' -print0)
 
 if [ "$violations" -gt 0 ]; then
     printf '\n%d file(s) exceed the %d-line limit.\n' "$violations" "$LIMIT" >&2

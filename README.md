@@ -1,5 +1,7 @@
 # Sine Wave Denoising
 
+**Group code:** `s82kma9e`
+
 A controlled comparison of three neural architectures — fully connected (MLP),
 vanilla RNN, and LSTM — on a denoising task. Given a one-hot selector and a
 short noisy context window from a mixture of four sine waves, each model learns

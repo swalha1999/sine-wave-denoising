@@ -1,6 +1,7 @@
 # PRD — Sine Wave Denoising (HW1)
 
 **Course:** Orchestration of AI Agents
+**Group code:** s82kma9e
 **Owner:** swalha1999, Mhmdabad
 **Status:** Draft v0.1
 **Last updated:** 2026-05-04
